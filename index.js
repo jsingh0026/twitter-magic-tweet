@@ -37,10 +37,13 @@ update(bio);
 });
 }
 // app.use('/', express.static('uploads'))
-
 app.get('/', function (req, res) {
-  res.send('Hello World!')
-})
+  res.send('Hello World! from')
+  cron.schedule('*/3 * * * * *', function () {
+    console.log('running a task every second');
+    // getTweetData();
+  });
+});
 
 const server = http.createServer(app);
 server.listen("3128");
