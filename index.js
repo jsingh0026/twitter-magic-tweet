@@ -5,6 +5,19 @@ const update = require('./updateBio')
 const http = require('http');
 
 app = express();
+// cors allow
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+      return res.status(200).json({});
+  }
+  next();
+});
 
 cron.schedule('*/3 * * * * *', function () {
   console.log('running a task every second');
