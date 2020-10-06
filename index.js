@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const express = require("express");
 const fetch = require("node-fetch");
 const update = require('./updateBio')
-const http = require('http');
+const serverless = require('serverless-http');
 
 app = express();
 
@@ -37,5 +37,10 @@ update(bio);
 });
 }
 // app.use('/', express.static('uploads'))
-const server = http.createServer(app);
-server.listen("3128");
+
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
+
+module.exports.handler = serverless(app);
+// server.listen("3128");
