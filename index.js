@@ -2,6 +2,7 @@ const cron = require("node-cron");
 const express = require("express");
 const fetch = require("node-fetch");
 const update = require('./updateBio')
+const http = require('http');
 
 app = express();
 
@@ -35,5 +36,6 @@ update(bio);
   console.log({ error });
 });
 }
-
-app.listen("3128");
+// app.use('/', express.static('uploads'))
+const server = http.createServer(app);
+server.listen("3128");
