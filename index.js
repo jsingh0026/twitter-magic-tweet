@@ -1,59 +1,39 @@
-const fs = require("fs");
-let shell = require("shelljs");
 const cron = require("node-cron");
 const express = require("express");
-let nodemailer = require("nodemailer");
+const fetch = require("node-fetch");
+const update = require('./updateBio')
 
 app = express();
 
-// deleting error.log files from server on the 21st of every month
-cron.schedule("* * 21 * *", function() {
-  console.log("---------------------");
-  console.log("Running Cron Job");
-  fs.unlink("./error.log", err => {
-    if (err) throw err;
-    console.log("Error file succesfully deleted");
-  });
+cron.schedule('*/3 * * * * *', function () {
+  console.log('running a task every second');
+  // getTweetData();
 });
 
-// sending emails at periodic intervals
-
-// create mail transporter
-let transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "COMPANYEMAIL@gmail.com",
-    pass: "COMPANYPASS"
+const getTweetData = () => {
+  fetch(
+  "https://api.twitter.com/2/tweets?ids=1295799129310769152&tweet.fields=public_metrics",
+  {
+    method: "GET",
+    headers: { Authorization: `Bearer AAAAAAAAAAAAAAAAAAAAAAWEIAEAAAAApcVo%2BMmoVPNc59sjMBYSISJekYQ%3Dfy8BIhDS2Qh4Lqw1mhRqnZx88KS9bHN2wzbXDi0WvJhydUTmWg` },
   }
-});
+).then((response) => response.json())
+.then((json) => {
+const { retweet_count, reply_count, like_count, quote_count } = json.data[0].public_metrics;
+  var bio = `Details for the Magic Tweet
+MT Likes: ${like_count}
+MT Replies: ${reply_count}
+MT Retweets: ${retweet_count}
+MT Quoted: ${quote_count}
 
-cron.schedule("* * * * Wednesday", function() {
-  console.log("---------------------");
-  console.log("Running Cron Job");
-  let mailOptions = {
-    from: "COMPANYEMAIL@gmail.com",
-    to: "RECEPIENTEMAIL@gmail.com",
-    subject: `Not a GDPR update ;)`,
-    text: `Hi there, this email was automatically sent by us`
-  };
-  transporter.sendMail(mailOptions, function(error, info) {
-    if (error) {
-      throw error;
-    } else {
-      console.log("Email successfully sent!");
-    }
-  });
+Developer @GeekyAnts
+`;
+update(bio);
+  console.log(json.data[0].public_metrics);
+})
+.catch((error) => {
+  console.log({ error });
 });
-
-// To backup a database
-cron.schedule("59 23 * * *", function() {
-  console.log("---------------------");
-  console.log("Running Cron Job");
-  if (shell.exec("sqlite3 database.sqlite  .dump > data_dump.sql").code !== 0) {
-    shell.exit(1);
-  } else {
-    shell.echo("Database backup complete");
-  }
-});
+}
 
 app.listen("3128");
